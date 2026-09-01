@@ -11,13 +11,9 @@ export type TCoupon = {
   useLimit: number;
   startDate: Date;
   expireDate: Date;
-  couponType: 'brand' | 'category' | 'subCategory';
   used?: number;
   perUserLimit?: number;
   userInfo?: ObjectId;
-  categoryID?: ObjectId;
-  subCategoryID?: ObjectId;
-  brandID?: ObjectId;
   isActive: boolean;
   status: Status;
 };

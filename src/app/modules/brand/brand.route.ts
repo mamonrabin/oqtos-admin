@@ -12,6 +12,7 @@ router.post(
 );
 router.get('/all', brandController.getAllBrandWithoutBuilder);
 router.get('/', brandController.getAllBrand);
+router.get('/active', brandController.getAllActiveBrand);
 router.get('/:id', brandController.getSingleBrand);
 router.get('/brandSlug/:slug', brandController.getSingleBrandBySlug);
 router.put(

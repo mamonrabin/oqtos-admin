@@ -24,6 +24,9 @@ import { reviewRoutes } from '../modules/review/review.route.js';
 import { CourierRoutes } from '../modules/courier/courier.route.js';
 import { returnRoutes } from '../modules/return/return.route.js';
 import { homeRoutes } from '../modules/home-control/home-control.route.js';
+import { blogRoutes } from '../modules/blog/blog.route.js';
+import { affiliateRoutes } from '../modules/affiliate/affiliate.route.js';
+import { customeRoutes } from '../modules/custome-design/custome-design.route.js';
 
 export const router = Router();
 
@@ -127,6 +130,18 @@ const moduleRoutes = [
   {
     path: '/home',
     route: homeRoutes,
+  },
+  {
+    path: '/blog',
+    route: blogRoutes,
+  },
+  {
+    path: '/affiliate',
+    route: affiliateRoutes,
+  },
+  {
+    path: '/custome',
+    route: customeRoutes,
   },
 ];
 

@@ -49,6 +49,20 @@ const createProduct = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+const getAllProductWithoutBuilder = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await productService.getAllProductWithoutBuilder();
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: ' get all products successfully',
+      data: result,
+    });
+  },
+);
+
 const getAllProduct = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const query = req.query;
@@ -269,6 +283,7 @@ const deleteSingleProduct = async (
 
 export const productController = {
   createProduct,
+  getAllProductWithoutBuilder,
   getAllProduct,
   getReletiveProduct,
   getDiscountProducts,

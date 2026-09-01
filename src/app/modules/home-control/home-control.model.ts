@@ -20,7 +20,7 @@ const homeSchema = new Schema<THome>(
         'About',
         'Brands',
         'Testimonials',
-        'FAQ',
+        'Blog',
         'Newsletter',
       ],
       required: true,

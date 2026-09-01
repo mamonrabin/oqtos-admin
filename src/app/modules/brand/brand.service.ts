@@ -1,6 +1,6 @@
 import { QueryBuilder } from "../../utils/QueryBuilder.js";
 import { brandSearchableFields } from "./brand.constant.js";
-import type { TBrand } from "./brand.interface.js";
+import { Status, type TBrand } from "./brand.interface.js";
 import { brandModel } from "./brand.model.js";
 
 
@@ -35,6 +35,15 @@ const getAllBrand = async (query: Record<string, string>) => {
     }
 };
 
+const getActiveAllBrand = async () => {
+  const result = await brandModel.find({
+    status: {
+        $nin: [Status.InActive],
+      },
+  });
+  return result;
+};
+
 const getSingleBrand = async (id: string) => {
   const result = await brandModel.findById(id);
   return result;
@@ -64,6 +73,7 @@ export const brandService = {
   createBrand,
   getAllBrandWithoutBuilder,
   getAllBrand,
+  getActiveAllBrand,
   getSingleBrand,
   getSingleBrandBySlug,
   updateSingleBrand,

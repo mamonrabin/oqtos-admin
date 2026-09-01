@@ -45,6 +45,22 @@ const logout = catchAsync(async (req: Request, res: Response, next: NextFunction
     })
 })
 
+const forgotPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+
+    const { email } = req.body;
+
+    await authServices.forgotPassword(email);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Email Sent Successfully",
+        data: null,
+    })
+})
+
+
 
 const changePassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
@@ -63,35 +79,45 @@ const changePassword = catchAsync(async (req: Request, res: Response, next: Next
 })
 
 
-const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+// const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    const decodedToken = req.user
+//     const decodedToken = req.user
 
-    await authServices.resetPassword(req.body, decodedToken as JwtPayload);
+//     await authServices.resetPassword(req.body, decodedToken as JwtPayload);
+
+//     sendResponse(res, {
+//         success: true,
+//         statusCode: httpStatus.OK,
+//         message: "Password Changed Successfully",
+//         data: null,
+//     })
+// })
+
+
+const resetPassword = catchAsync(
+  async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Unauthorized"
+      );
+    }
+
+    await authServices.resetPassword(
+      req.body,
+      req.user as JwtPayload
+    );
 
     sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: "Password Changed Successfully",
-        data: null,
-    })
-})
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Password changed successfully",
+      data: null,
+    });
+  }
+);
 
 
-const forgotPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-
-
-    const { email } = req.body;
-
-    await authServices.forgotPassword(email);
-
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: "Email Sent Successfully",
-        data: null,
-    })
-})
 
 
 

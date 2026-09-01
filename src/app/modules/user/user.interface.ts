@@ -18,6 +18,12 @@ export enum IsActive {
   BLOCKED = 'BLOCKED',
 }
 
+export enum AffiliateStatus {
+  Request = 'Request',
+  Accepted = 'Accepted',
+  Denied = 'Denied',
+}
+
 export interface IUser {
   _id?: Types.ObjectId;
   name: string;
@@ -31,4 +37,7 @@ export interface IUser {
   isVerified?: boolean;
   role: Role;
   auths: IAuthProvider[];
+  affiliateCoupon?: string;
+  affiliateLink?:string[]
+  affiliateStatus: AffiliateStatus;
 }

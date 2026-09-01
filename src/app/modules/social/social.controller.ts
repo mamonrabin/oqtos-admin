@@ -33,6 +33,18 @@ const getAllSocialIcon = catchAsync(
     });
   },
 );
+const getActiveAllSocialIcon = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await socialIconService.getActiveAllSocialIcon();
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: ' get all active socialIcon successfully',
+      data: result,
+    });
+  },
+);
 
 const updateSingleSocialIcon = catchAsync(
   async (req: Request, res: Response) => {
@@ -70,6 +82,7 @@ const deleteSingleSocialIcon = catchAsync(
 export const socialIconController = {
   createSocialIcon,
   getAllSocialIcon,
+  getActiveAllSocialIcon,
   updateSingleSocialIcon,
   deleteSingleSocialIcon,
 };

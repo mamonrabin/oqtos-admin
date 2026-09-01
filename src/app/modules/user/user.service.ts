@@ -7,6 +7,7 @@ import config from "../../config/index.js";
 import { userModel } from "./user.model.js";
 import { QueryBuilder } from "../../utils/QueryBuilder.js";
 import { userSearchableFields } from "./user.constant.js";
+import { createUserTokens } from "../../utils/userTokens.js";
 
 const createUser = async (payload:IUser) => {
     const { email, password, ...rest } = payload;
@@ -29,7 +30,12 @@ const createUser = async (payload:IUser) => {
         auths: [authProvider],
     })
 
-    return user
+    const tokenInfo = createUserTokens(user);
+
+     return {
+    user,
+    accessToken: tokenInfo.accessToken,
+  };
 
 }
 
@@ -59,6 +65,39 @@ const getAllUsers = async (query: Record<string, string>) => {
     }
 };
 
+
+const getAllAffiliedUser = async (query: Record<string, string>) => {
+  const queryBuilder = new QueryBuilder(
+    userModel.find({
+      role: {
+        $nin: [Role.STAFF, Role.ADMIN, Role.SUPER_ADMIN],
+      },
+      affiliateCoupon: {
+        $exists: true,
+        $nin: [null, ""],
+      },
+    }),
+    query,
+  );
+
+  const usersData = queryBuilder
+    .filter()
+    .search(userSearchableFields)
+    .sort()
+    .fields()
+    .paginate()
+    .apply();
+
+  const [data, meta] = await Promise.all([
+    usersData.build(),
+    queryBuilder.getMeta(),
+  ]);
+
+  return {
+    data,
+    meta,
+  };
+};
 
 const getAllStaffs = async () => {
   const data = await userModel
@@ -101,6 +140,7 @@ const deleteSingleUser = async (id: string) => {
 export const userServices = {
     createUser,
     getAllUsers,
+    getAllAffiliedUser,
     getSingleUser,
     getMe,
     deleteSingleUser,

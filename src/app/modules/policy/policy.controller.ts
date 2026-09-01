@@ -45,7 +45,7 @@ const getAllPolicyByType = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: 'Policies retrieved successfully',
+    message: "Policies retrieved successfully",
     data: result,
   });
 });

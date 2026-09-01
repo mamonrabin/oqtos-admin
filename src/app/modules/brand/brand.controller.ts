@@ -54,6 +54,19 @@ const getAllBrand = catchAsync(
   },
 );
 
+const getAllActiveBrand = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await brandService.getActiveAllBrand();
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: ' get all active brand successfully',
+      data: result,
+    });
+  },
+);
+
 const getSingleBrand = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
@@ -124,6 +137,7 @@ export const brandController = {
   createBrand,
   getAllBrandWithoutBuilder,
   getAllBrand,
+  getAllActiveBrand,
   getSingleBrand,
   getSingleBrandBySlug,
   updateSingleBrand,

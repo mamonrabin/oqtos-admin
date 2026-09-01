@@ -11,6 +11,7 @@ router.post(
 router.get('/', orderController.getAllOrder);
 router.get("/today", orderController.getTodayOrders);
 router.get('/:id', orderController.getSingleOrder);
+router.get('/orderId/:orderID', orderController.getOrderByOrderID);
 router.patch('/:id', orderController.updateSingleOrder);
 router.delete('/:id', orderController.deleteSingleOrder);
 

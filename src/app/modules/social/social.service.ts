@@ -1,4 +1,4 @@
-import type { TSocialIcon } from './social.interface.js';
+import { Status, type TSocialIcon } from './social.interface.js';
 import { socialIconModel } from './social.model.js';
 
 const createSocialIcon = async (socialIcon: TSocialIcon) => {
@@ -7,6 +7,15 @@ const createSocialIcon = async (socialIcon: TSocialIcon) => {
 };
 const getAllSocialIcon = async () => {
   const result = await socialIconModel.find();
+  return result;
+};
+
+const getActiveAllSocialIcon = async () => {
+  const result = await socialIconModel.find({
+    status: {
+        $nin: [Status.InActive],
+      },
+  });
   return result;
 };
 
@@ -28,6 +37,7 @@ const deleteSingleSocialIcon = async (id: string) => {
 export const socialIconService = {
   createSocialIcon,
   getAllSocialIcon,
+  getActiveAllSocialIcon,
   updateSingleSocialIcon,
   deleteSingleSocialIcon,
 };

@@ -8,13 +8,15 @@ import { authControllers } from './auth.controller.js';
 import { auth } from '../../utils/decodedToken.js';
 import passport from 'passport';
 import config from '../../config/index.js';
+import { resetAuth } from '../../utils/resetAuth.js';
 
 const router = Router();
 
 router.post('/login', authControllers.credentialsLogin);
 router.post('/logout', authControllers.logout);
 router.post('/forgot-password', authControllers.forgotPassword);
-router.post('/reset-password', auth, authControllers.resetPassword);
+// router.post('/reset-password', auth, authControllers.resetPassword);
+router.post('/reset-password', resetAuth, authControllers.resetPassword);
 router.post('/change-password', auth, authControllers.changePassword);
 
 router.get(

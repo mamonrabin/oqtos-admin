@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { NextFunction, Request, Response } from 'express';
 
@@ -6,26 +7,41 @@ import { sendResponse } from '../../utils/sendResponse.js';
 import httpStatus from 'http-status-codes';
 import { blogService } from './blog.service.js';
 
-
-
 const createBlog = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const blog = req.body;
+    const files = req.files as {
+      [fieldname: string]: Express.Multer.File[];
+    };
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
+     const blog = {
+      ...req.body,
+      tags: req.body.tags
+        ? JSON.parse(req.body.tags)
+        : [],
+    };
+
+    const imageUrl = files?.image?.[0]
+      ? `/uploads/${files.image[0].filename}`
+      : "";
+
+    const images =
+      files?.images?.map(
+        (file) => `/uploads/${file.filename}`
+      ) || [];
 
     const result = await blogService.createBlog({
       ...blog,
       image: imageUrl,
+      images,
     });
 
     return sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
-      message: 'blog Created Successfully',
+      message: "Blog Created Successfully",
       data: result,
     });
-  },
+  }
 );
 
 const getAllBlog = catchAsync(
@@ -41,6 +57,18 @@ const getAllBlog = catchAsync(
   },
 );
 
+const getAllBlogByStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await blogService.getAllBlogByStatus();
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: ' get all published blog successfully',
+      data: result,
+    });
+  },
+);
 
 const getSingleBlog = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -50,7 +78,20 @@ const getSingleBlog = catchAsync(
     return sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
-      message: 'get single blog successfully',
+      message: 'get single blog  successfully',
+      data: result,
+    });
+  },
+);
+const getSingleBlogBySlug = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { slug } = req.params;
+    const result = await blogService.getSingleBlogBySlug(slug as string);
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'get single blog by slug successfully',
       data: result,
     });
   },
@@ -59,26 +100,63 @@ const getSingleBlog = catchAsync(
 
 
 
-const updateSingleBlog= catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const updateBlog = req.body;
+const updateSingleBlog = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-  const imageUrl = req.file
-    ? `/uploads/${req.file.filename}`
-    : updateBlog.image;
+    const updateData = {
+      ...req.body,
+    };
 
-  const result = await blogService.updateSingleBlog(id as string, {
-    ...updateBlog,
-    image: imageUrl,
-  });
+    const files = (req.files || {}) as {
+      [fieldname: string]: Express.Multer.File[];
+    };
 
-  return sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: 'blog Updated Successfully',
-    data: result,
-  });
-});
+    // Update main image only if a new image is uploaded
+    if (files?.image?.[0]) {
+      updateData.image = `/uploads/${files.image[0].filename}`;
+    }
+
+    // Update additional images only if new images are uploaded
+    if (files?.images?.length) {
+      updateData.images = files.images.map(
+        (file) => `/uploads/${file.filename}`
+      );
+    }
+
+    const result = await blogService.updateSingleBlog(
+      id as string,
+      updateData
+    );
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Blog updated successfully",
+      data: result,
+    });
+  }
+);
+
+
+const updateBlogStatus = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const result = await blogService.updateBlogStatus(
+      id as string,
+      status
+    );
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Blog status updated successfully",
+      data: result,
+    });
+  }
+);
 
 
 const deleteSingleBlog = catchAsync(
@@ -98,7 +176,10 @@ const deleteSingleBlog = catchAsync(
 export const blogController = {
   createBlog,
   getAllBlog,
+  getAllBlogByStatus,
   getSingleBlog,
+  getSingleBlogBySlug,
   updateSingleBlog,
-  deleteSingleBlog
+  updateBlogStatus,
+  deleteSingleBlog,
 };

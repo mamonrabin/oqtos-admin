@@ -14,6 +14,7 @@ const orderSchema = new Schema<TOrder>(
       type: Schema.Types.ObjectId,
       ref: 'user',
       index: true,
+      required:true
     },
     payment: {
       type: Schema.Types.ObjectId,
@@ -118,9 +119,6 @@ const orderSchema = new Schema<TOrder>(
         ],
       },
       address: { type: String, required: true },
-      house: { type: String },
-      road: { type: String },
-      thana: { type: String },
     },
 
     subTotalPrice: {
@@ -229,7 +227,7 @@ orderSchema.pre('save', function () {
 });
 
 orderSchema.index({ userRef: 1, createdAt: -1 });
-orderSchema.index({ payment: 1 });
-orderSchema.index({ orderId: 1 });
+// orderSchema.index({ payment: 1 });
+// orderSchema.index({ orderId: 1 });
 
 export const orderModel = model<TOrder>('order', orderSchema);

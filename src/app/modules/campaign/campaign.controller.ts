@@ -7,11 +7,37 @@ import httpStatus from 'http-status-codes';
 import { campaignService } from './campaign.service.js';
 
 
+// const createCampaign = catchAsync(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const campaign = req.body;
+
+//     const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
+
+//     const result = await campaignService.createCampaign({
+//       ...campaign,
+//       image: imageUrl,
+//     });
+
+//     return sendResponse(res, {
+//       success: true,
+//       statusCode: httpStatus.CREATED,
+//       message: 'campaign Created Successfully',
+//       data: result,
+//     });
+//   },
+// );
+
+
 const createCampaign = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const campaign = req.body;
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
+    // Parse products array
+    if (campaign.products) {
+      campaign.products = JSON.parse(campaign.products);
+    }
+
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : "";
 
     const result = await campaignService.createCampaign({
       ...campaign,
@@ -21,11 +47,13 @@ const createCampaign = catchAsync(
     return sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
-      message: 'campaign Created Successfully',
+      message: "Campaign Created Successfully",
       data: result,
     });
   },
 );
+
+
 
 const getAllCampaign = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -40,6 +68,18 @@ const getAllCampaign = catchAsync(
   },
 );
 
+const getFlashSale = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await campaignService.getflashSale();
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'Flash sale fetched successfully',
+      data: result,
+    });
+  },
+);
 
 const getSingleCampaign = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -97,6 +137,7 @@ const deleteSingleCampaign = catchAsync(
 export const campaignController = {
   createCampaign,
   getAllCampaign,
+  getFlashSale,
   getSingleCampaign,
   updateSingleCampaign,
   deleteSingleCampaign

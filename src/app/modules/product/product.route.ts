@@ -15,6 +15,7 @@ router.post(
 );
 
 router.get('/', productController.getAllProduct);
+router.get('/withoutBuilder', productController.getAllProductWithoutBuilder);
 router.get('/related-products/:id', productController.getReletiveProduct);
 router.get('/dicount-products', productController.getDiscountProducts);
 router.get('/new-products', productController.getNewArrivalProducts);

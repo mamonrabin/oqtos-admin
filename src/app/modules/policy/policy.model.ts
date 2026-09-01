@@ -9,12 +9,11 @@ const policySchema = new Schema<TPolicy>(
       type: String,
       enum: ['privacy', 'condition', 'return', 'order', 'shipping'],
       required: true,
-      default: 'privacy',
     },
     status: {
       type: String,
       enum: Object.values(Status),
-      default: Status.Active,
+      default: Status.InActive,
     },
   },
   {

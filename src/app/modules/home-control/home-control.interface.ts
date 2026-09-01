@@ -7,7 +7,7 @@ export type TLandingpage =
   | 'About'
   | 'Brands'
   | 'Testimonials'
-  | 'FAQ'
+  | 'Blog'
   | 'Newsletter';
 
 export type TOrder =

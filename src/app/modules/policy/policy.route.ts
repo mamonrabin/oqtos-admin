@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/create-policy', policyController.createPolicy);
 router.get('/', policyController.getAllPolicy);
-router.get('/', policyController.getAllPolicyByType);
+router.get("/type", policyController.getAllPolicyByType);
 
 router.patch('/:id', policyController.updateSinglePolicy);
 router.delete('/:id', policyController.deleteSinglePolicy);

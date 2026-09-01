@@ -112,29 +112,119 @@ const changePassword = async (oldPassword: string, newPassword: string, decodedT
 }
 
 
-const resetPassword = async (payload: Record<string, any>, decodedToken: JwtPayload) => {
-    if (payload.id != decodedToken.userId) {
-        throw new AppError(401, "You can not reset your password")
-    }
+// const resetPassword = async (payload: Record<string, any>, decodedToken: JwtPayload) => {
+//     if (payload.id != decodedToken.userId) {
+//         throw new AppError(401, "You can not reset your password")
+//     }
 
 
-    const isUserExist = await userModel.findById(decodedToken.userId)
-    if (!isUserExist) {
-        throw new AppError(401, "User does not exist")
-    }
+//     const isUserExist = await userModel.findById(decodedToken.userId)
+//     if (!isUserExist) {
+//         throw new AppError(401, "User does not exist")
+//     }
 
-    const hashedPassword = await bcrypt.hash(
-        payload.newPassword,
-        Number(config.bcrypt_salt_round as string)
-    )
+//     const hashedPassword = await bcrypt.hash(
+//         payload.newPassword,
+//         Number(config.bcrypt_salt_round as string)
+//     )
 
-    isUserExist.password = hashedPassword;
+//     isUserExist.password = hashedPassword;
 
-    await isUserExist.save()
-}
+//     await isUserExist.save()
+// }
 
 
+// const resetPassword = async (
+//   payload: Record<string, any>,
+//   decodedToken: JwtPayload
+// ) => {
+//   // Check user ID
+//   if (payload.id !== decodedToken.userId) {
+//     throw new AppError(
+//       httpStatus.UNAUTHORIZED,
+//       "You cannot reset this password"
+//     );
+//   }
 
+//   // Find user
+//   const isUserExist = await userModel.findById(
+//     decodedToken.userId
+//   );
+
+//   if (!isUserExist) {
+//     throw new AppError(
+//       httpStatus.NOT_FOUND,
+//       "User does not exist"
+//     );
+//   }
+
+//   // Validate password
+//   if (!payload.newPassword) {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       "New password is required"
+//     );
+//   }
+
+//   if (payload.newPassword.length < 6) {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       "Password must be at least 6 characters"
+//     );
+//   }
+
+//   // Hash password
+//   const hashedPassword = await bcrypt.hash(
+//     payload.newPassword,
+//     Number(config.bcrypt_salt_round)
+//   );
+
+//   isUserExist.password = hashedPassword;
+
+//   await isUserExist.save();
+
+//   return null;
+// };
+
+
+const resetPassword = async (
+  payload: Record<string, any>,
+  decodedToken: JwtPayload
+) => {
+  if (payload.id !== decodedToken.userId) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "You cannot reset your password"
+    );
+  }
+
+  const isUserExist = await userModel.findById(
+    decodedToken.userId
+  );
+
+  if (!isUserExist) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "User does not exist"
+    );
+  }
+
+  if (!payload.newPassword) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "New password is required"
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_round)
+  );
+
+  isUserExist.password = hashedPassword;
+
+  await isUserExist.save();
+};
 
 export const authServices = {
   loginUser,

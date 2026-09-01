@@ -11,6 +11,7 @@ router.post(
   campaignController.createCampaign,
 );
 router.get('/', campaignController.getAllCampaign);
+router.get("/flash-sale", campaignController.getFlashSale);
 router.get('/:id', campaignController.getSingleCampaign);
 router.patch('/:id', upload.single('image'), campaignController.updateSingleCampaign);
 router.delete('/:id', campaignController.deleteSingleCampaign);

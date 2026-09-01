@@ -38,6 +38,18 @@ const getAllBanner = catchAsync(
     });
   },
 );
+const getAllActiveBanner = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await bannerService.getActiveAllBanner();
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: ' get all active banner successfully',
+      data: result,
+    });
+  },
+);
 
 
 
@@ -82,6 +94,7 @@ const deleteSingleBanner = catchAsync(
 export const bannerController = {
   createBanner,
   getAllBanner,
+  getAllActiveBanner,
   updateSingleBanner,
   deleteSingleBanner
 };

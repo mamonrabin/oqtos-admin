@@ -10,6 +10,7 @@ const router = Router()
 
 router.post("/register", userControllers.createUser)
 router.get("/", userControllers.getAllUsers)
+router.get("/affiliate", userControllers.getAllAffiliedUser)
 router.get("/staffs", userControllers.getAllStaffs)
 router.get("/me", auth,userControllers.getMe)
 router.get("/:id", userControllers.getSingleUser)

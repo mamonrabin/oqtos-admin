@@ -1,23 +1,134 @@
 import { productModel } from './product.model.js';
-import type { ProductLabel, TProduct } from './product.interface.js';
+import {
+  Status,
+  type ProductLabel,
+  type TProduct,
+} from './product.interface.js';
 import { QueryBuilder } from '../../utils/QueryBuilder.js';
 import { productSearchableFields } from './product.constant.js';
+import mongoose from 'mongoose';
+import { categoryModel } from '../category/category.model.js';
+import { subcategoryModel } from '../sub-category/sub-category.model.js';
+import { brandModel } from '../brand/brand.model.js';
 
 const createProduct = async (payload: TProduct) => {
   const result = await productModel.create(payload);
   return result;
 };
 
-const getAllProduct = async (query: Record<string, string>) => {
+const getAllProductWithoutBuilder = async () => {
+  const result = await productModel
+    .find()
+    .populate('category subCategory brand')
+    .populate('category', 'categoryName')
+    .populate('subCategory', 'subcategoryName')
+    .populate('brand', 'title');
+  return result;
+};
+
+// const getAllProduct = async (query: Record<string, string>) => {
+//   const queryBuilder = new QueryBuilder(
+//     productModel
+//       .find()
+//       .populate('category subCategory brand')
+//       .populate('category', 'categoryName')
+//       .populate('subCategory', 'subcategoryName')
+//       .populate('brand', 'title'),
+//     query,
+//   );
+//   const productData = queryBuilder
+//     .filter()
+//     .search(productSearchableFields)
+//     .sort()
+//     .fields()
+//     .paginate()
+//     .apply();
+
+//   const [data, meta] = await Promise.all([
+//     productData.build(),
+//     queryBuilder.getMeta(),
+//   ]);
+
+//   return {
+//     data,
+//     meta,
+//   };
+// };
+
+
+const getAllProduct = async (
+  query: Record<string, string>
+) => {
+  const queryObj = { ...query };
+
+  // ==========================================
+  // CATEGORY: ID or SLUG
+  // ==========================================
+
+  if (queryObj.category) {
+    if (!mongoose.Types.ObjectId.isValid(queryObj.category)) {
+      const category = await categoryModel
+        .findOne({
+          slug: queryObj.category,
+        })
+        .select("_id");
+
+      if (category) {
+        queryObj.category = category._id.toString();
+      }
+    }
+  }
+
+  // ==========================================
+  // SUB CATEGORY: ID or SLUG
+  // ==========================================
+
+  if (queryObj.subCategory) {
+    if (!mongoose.Types.ObjectId.isValid(queryObj.subCategory)) {
+      const subCategory = await subcategoryModel
+        .findOne({
+          slug: queryObj.subCategory,
+        })
+        .select("_id");
+
+      if (subCategory) {
+        queryObj.subCategory =
+          subCategory._id.toString();
+      }
+    }
+  }
+
+  // ==========================================
+  // BRAND: ID or SLUG
+  // ==========================================
+
+  if (queryObj.brand) {
+    if (!mongoose.Types.ObjectId.isValid(queryObj.brand)) {
+      const brand = await brandModel
+        .findOne({
+          slug: queryObj.brand,
+        })
+        .select("_id");
+
+      if (brand) {
+        queryObj.brand = brand._id.toString();
+      }
+    }
+  }
+
+  // ==========================================
+  // QUERY BUILDER
+  // ==========================================
+
   const queryBuilder = new QueryBuilder(
     productModel
       .find()
-      .populate('category subCategory brand')
-      .populate('category', 'categoryName')
-      .populate('subCategory', 'subcategoryName')
-      .populate('brand', 'title'),
-    query,
+      .populate("category", "categoryName")
+      .populate("subCategory", "subcategoryName")
+      .populate("brand", "title"),
+    queryObj
   );
+
   const productData = queryBuilder
     .filter()
     .search(productSearchableFields)
@@ -36,6 +147,7 @@ const getAllProduct = async (query: Record<string, string>) => {
     meta,
   };
 };
+
 
 const getRelatedProducts = async (productId: string, limit = 8) => {
   const product = await productModel.findById(productId);
@@ -64,6 +176,7 @@ const getRelatedProducts = async (productId: string, limit = 8) => {
 
   return relatedProducts;
 };
+
 const getDiscountProducts = async (limit = 8) => {
   const discountProducts = await productModel
     .find({
@@ -89,6 +202,7 @@ const getProductsByCategory = async (categoryId: string) => {
 
   return result;
 };
+
 const getProductsBySubCategory = async (subCategoryId: string) => {
   const result = await productModel
     .find({ subCategory: subCategoryId })
@@ -114,7 +228,7 @@ const getProductsByBrand = async (brandId: string) => {
 
 const getProductsByLabels = async (label: ProductLabel, limit = 8) => {
   const result = await productModel
-    .find({ labels: label })
+    .find({ label })
     .populate('category', 'categoryName')
     .populate('subCategory', 'subCategoryName')
     .populate('brand', 'title')
@@ -140,9 +254,13 @@ const getBestSellingProducts = async (limit = 8) => {
 
 const getNewArrivalProducts = async (limit = 8) => {
   const result = await productModel
-    .find()
+    .find({
+      status: {
+        $nin: [Status.InActive],
+      },
+    })
     .populate('category', 'categoryName')
-    .populate('subCategory', 'subCategoryName')
+    .populate('subCategory', 'subcategoryName')
     .populate('brand', 'title')
     .sort({ createdAt: -1 })
     .limit(limit);
@@ -151,12 +269,20 @@ const getNewArrivalProducts = async (limit = 8) => {
 };
 
 const getSingleProduct = async (id: string) => {
-  const result = await productModel.findById(id);
+  const result = await productModel
+    .findById(id)
+    .populate('category', 'categoryName')
+    .populate('subCategory', 'subCategoryName')
+    .populate('brand', 'title');
   return result;
 };
 
 const getSingleProductBySlug = async (slug: string) => {
-  const result = await productModel.findOne({ slug });
+  const result = await productModel
+    .findOne({ slug })
+    .populate('category', 'categoryName')
+    .populate('subCategory', 'subCategoryName')
+    .populate('brand', 'title');
   return result;
 };
 
@@ -174,6 +300,7 @@ const deleteSingleProduct = async (id: string) => {
 
 export const productService = {
   createProduct,
+  getAllProductWithoutBuilder,
   getAllProduct,
   getRelatedProducts,
   getDiscountProducts,

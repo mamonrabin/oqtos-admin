@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import type { TOrder } from './order.interface.js';
 import { orderModel } from './order.model.js';
 import { productModel } from '../product/product.model.js';
@@ -91,7 +91,7 @@ const getAllOrder = async (query: Record<string, string>) => {
   const queryBuilder = new QueryBuilder(
     orderModel
       .find()
-      .populate('userRef',"name email")
+      .populate('userRef', 'name email')
       .populate('products.productRef', 'title')
       .populate('couponRef', 'code discount'),
     query,
@@ -115,8 +115,6 @@ const getAllOrder = async (query: Record<string, string>) => {
   };
 };
 
-
-
 const getTodayOrders = async (query: Record<string, string>) => {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
@@ -132,10 +130,10 @@ const getTodayOrders = async (query: Record<string, string>) => {
           $lte: endOfDay,
         },
       })
-      .populate("userRef", "name email")
-      .populate("products.productRef", "title")
-      .populate("couponRef", "code discount"),
-    query
+      .populate('userRef', 'name email')
+      .populate('products.productRef', 'title')
+      .populate('couponRef', 'code discount'),
+    query,
   );
 
   const orderData = queryBuilder
@@ -158,7 +156,22 @@ const getTodayOrders = async (query: Record<string, string>) => {
 };
 
 const getSingleOrder = async (id: string) => {
-  const result = await orderModel.findById(id);
+  const result = await orderModel
+    .findById(id)
+    .populate('userRef', 'name email')
+    .populate('products.productRef', 'title thumbnailImage')
+    .populate('couponRef', 'code discount');
+  return result;
+};
+
+const getOrderByOrderID = async (orderId: string) => {
+  const result = await orderModel.findOne({ orderId });
+  return result;
+};
+
+const getOrdersByUser = async (userRef: Types.ObjectId) => {
+  const result = await orderModel.find({ userRef }).sort({ createdAt: -1 });
+
   return result;
 };
 
@@ -178,7 +191,9 @@ export const orderService = {
   createOrder,
   getAllOrder,
   getSingleOrder,
+  getOrderByOrderID,
+  getOrdersByUser,
   updateSingleOrder,
   deleteSingleOrder,
-  getTodayOrders
+  getTodayOrders,
 };

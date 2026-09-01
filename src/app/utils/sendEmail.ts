@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import ejs from "ejs";
-import nodemailer from "nodemailer";
-import path from "path";
-import { fileURLToPath } from "url";
+import ejs from 'ejs';
+import nodemailer from 'nodemailer';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import config from "../config/index.js";
-import AppError from "../helpers/AppError.js";
+import config from '../config/index.js';
+import AppError from '../helpers/AppError.js';
 
 // Fix for __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -41,13 +41,19 @@ export const sendEmail = async ({
   attachments,
 }: SendEmailOptions) => {
   try {
-    const templatePath = path.join(
+    // const templatePath = path.join(
+    //   __dirname,
+    //   "../templates",
+    //   `${templateName}.ejs`
+    // );
+
+    const templatePath = path.resolve(
       __dirname,
-      "../templates",
-      `${templateName}.ejs`
+      'templates',
+      `${templateName}.ejs`,
     );
 
-    console.log("Template Path:", templatePath);
+    console.log('Template Path:', templatePath);
 
     const html = await ejs.renderFile(templatePath, templateData);
 
@@ -67,11 +73,8 @@ export const sendEmail = async ({
 
     return info;
   } catch (error: any) {
-    console.error("Email sending error:", error);
+    console.error('Email sending error:', error);
 
-    throw new AppError(
-      500,
-      error?.message || "Failed to send email"
-    );
+    throw new AppError(500, error?.message || 'Failed to send email');
   }
 };

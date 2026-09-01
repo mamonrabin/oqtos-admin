@@ -1,11 +1,15 @@
-
+export enum Status {
+  draft = 'draft',
+  published = 'published',
+}
 
 export type TBlog = {
   title: string;
   slug: string;
-  shortDescription?: string;
+  cardDescription?: string;
   content: string;
   image: string;
+  images?: string[];
   tags?: string[];
-  status: "draft" | "published";
+  status: Status;
 };

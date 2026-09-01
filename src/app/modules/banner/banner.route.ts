@@ -11,6 +11,7 @@ router.post(
   bannerController.createBanner,
 );
 router.get('/', bannerController.getAllBanner);
+router.get('/active', bannerController.getAllActiveBanner);
 
 router.put(
   '/:id',

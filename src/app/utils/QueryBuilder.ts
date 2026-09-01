@@ -1,7 +1,8 @@
 /* eslint-disable no-useless-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import mongoose, { Query } from 'mongoose';
-import { excludeField } from '../constants.js';
+
+import mongoose, { Query } from "mongoose";
+import { excludeField } from "../constants.js";
 
 export class QueryBuilder<T> {
   public modelQuery: Query<T[], T>;
@@ -9,20 +10,30 @@ export class QueryBuilder<T> {
 
   private filterQuery: Record<string, any> = {};
 
-  constructor(modelQuery: Query<T[], T>, query: Record<string, string>) {
+  constructor(
+    modelQuery: Query<T[], T>,
+    query: Record<string, string>
+  ) {
     this.modelQuery = modelQuery;
     this.query = query;
   }
 
-  // ---------------- FILTER ----------------
+  // =====================================================
+  // FILTER
+  // =====================================================
+
   filter(): this {
     const filter = { ...this.query };
 
-    excludeField.forEach((field) => delete filter[field]);
+    // Remove pagination / sorting / search fields
+    excludeField.forEach((field) => {
+      delete filter[field];
+    });
 
+    // Remove empty values
     Object.keys(filter).forEach((key) => {
       if (
-        filter[key] === '' ||
+        filter[key] === "" ||
         filter[key] === undefined ||
         filter[key] === null
       ) {
@@ -32,107 +43,220 @@ export class QueryBuilder<T> {
 
     const itemFilter: Record<string, any> = {};
 
+    // =====================================================
     // CATEGORY
+    // =====================================================
+
     if (filter.category) {
-      itemFilter.category = new mongoose.Types.ObjectId(filter.category);
+      if (mongoose.Types.ObjectId.isValid(filter.category)) {
+        itemFilter.category = new mongoose.Types.ObjectId(
+          filter.category
+        );
+      }
+
       delete filter.category;
     }
 
+    // =====================================================
     // SUB CATEGORY
+    // =====================================================
+
     if (filter.subCategory) {
-      itemFilter.subCategory = new mongoose.Types.ObjectId(filter.subCategory);
+      if (mongoose.Types.ObjectId.isValid(filter.subCategory)) {
+        itemFilter.subCategory = new mongoose.Types.ObjectId(
+          filter.subCategory
+        );
+      }
+
       delete filter.subCategory;
     }
 
+    // =====================================================
     // BRAND
+    // =====================================================
+
     if (filter.brand) {
-      itemFilter.brand = new mongoose.Types.ObjectId(filter.brand);
+      if (mongoose.Types.ObjectId.isValid(filter.brand)) {
+        itemFilter.brand = new mongoose.Types.ObjectId(
+          filter.brand
+        );
+      }
+
       delete filter.brand;
     }
 
-    // COLORS
+    // =====================================================
+    // COLOR
+    // inventories.color
+    //
+    // Example:
+    // ?color=Red,Blue,Black
+    // =====================================================
+
     if (filter.color) {
-      itemFilter.colors = {
-        $in: filter.color
-          .split(',')
-          .map((id) => new mongoose.Types.ObjectId(id)),
-      };
+      const colors = filter.color
+        .split(",")
+        .map((color) => color.trim())
+        .filter(Boolean);
+
+      if (colors.length > 0) {
+        itemFilter["inventories.color"] = {
+          $in: colors,
+        };
+      }
 
       delete filter.color;
     }
 
-    // SIZES
+    // =====================================================
+    // SIZE
+    // inventories.size
+    //
+    // Example:
+    // ?size=M,L,XL
+    // =====================================================
+
     if (filter.size) {
-      itemFilter.sizes = {
-        $in: filter.size
-          .split(',')
-          .map((id) => new mongoose.Types.ObjectId(id)),
-      };
+      const sizes = filter.size
+        .split(",")
+        .map((size) => size.trim())
+        .filter(Boolean);
+
+      if (sizes.length > 0) {
+        itemFilter["inventories.size"] = {
+          $in: sizes,
+        };
+      }
 
       delete filter.size;
     }
 
+    // =====================================================
     // STOCK STATUS
+    // =====================================================
+
     if (filter.stock_status) {
       itemFilter.stock_status = filter.stock_status;
       delete filter.stock_status;
     }
 
+    // =====================================================
+    // LABEL
+    // =====================================================
+
+    if (filter.label) {
+      itemFilter.label = filter.label;
+      delete filter.label;
+    }
+
+    // =====================================================
     // LABELS
+    // =====================================================
+
     if (filter.labels) {
-      itemFilter.labels = filter.labels;
+      const labels = filter.labels
+        .split(",")
+        .map((label) => label.trim())
+        .filter(Boolean);
+
+      itemFilter.labels = {
+        $in: labels,
+      };
+
       delete filter.labels;
     }
+
+    // =====================================================
     // PAYMENT METHOD
+    // =====================================================
+
     if (filter.paymentMethod) {
       itemFilter.paymentMethod = filter.paymentMethod;
       delete filter.paymentMethod;
     }
 
+    // =====================================================
     // PAYMENT STATUS
+    // =====================================================
+
     if (filter.paymentStatus) {
       itemFilter.paymentStatus = filter.paymentStatus;
       delete filter.paymentStatus;
     }
 
+    // =====================================================
     // ORDER STATUS
+    // =====================================================
+
     if (filter.status) {
       itemFilter.status = filter.status;
       delete filter.status;
     }
 
+    // =====================================================
     // PRICE RANGE
-    if (filter.minPrice || filter.maxPrice) {
-      itemFilter.price = {};
+    //
+    // ?minPrice=500&maxPrice=2000
+    // =====================================================
 
-      if (filter.minPrice) {
-        itemFilter.price.$gte = Number(filter.minPrice);
+    if (
+      filter.minPrice !== undefined ||
+      filter.maxPrice !== undefined
+    ) {
+      const priceFilter: Record<string, number> = {};
+
+      if (
+        filter.minPrice !== undefined &&
+        filter.minPrice !== ""
+      ) {
+        const minPrice = Number(filter.minPrice);
+
+        if (!Number.isNaN(minPrice)) {
+          priceFilter.$gte = minPrice;
+        }
       }
 
-      if (filter.maxPrice) {
-        itemFilter.price.$lte = Number(filter.maxPrice);
+      if (
+        filter.maxPrice !== undefined &&
+        filter.maxPrice !== ""
+      ) {
+        const maxPrice = Number(filter.maxPrice);
+
+        if (!Number.isNaN(maxPrice)) {
+          priceFilter.$lte = maxPrice;
+        }
+      }
+
+      if (Object.keys(priceFilter).length > 0) {
+        itemFilter.price = priceFilter;
       }
 
       delete filter.minPrice;
       delete filter.maxPrice;
     }
 
+    // =====================================================
     // DATE FILTER
+    // =====================================================
+
     if (filter.dateFilter) {
       const now = new Date();
+
       let startDate: Date | null = null;
       let endDate: Date | null = null;
 
       switch (filter.dateFilter) {
-        case 'today':
+        case "today": {
           startDate = new Date(now);
           startDate.setHours(0, 0, 0, 0);
 
           endDate = new Date(now);
           endDate.setHours(23, 59, 59, 999);
-          break;
 
-        case 'yesterday':
+          break;
+        }
+
+        case "yesterday": {
           startDate = new Date(now);
           startDate.setDate(startDate.getDate() - 1);
           startDate.setHours(0, 0, 0, 0);
@@ -140,36 +264,57 @@ export class QueryBuilder<T> {
           endDate = new Date(now);
           endDate.setDate(endDate.getDate() - 1);
           endDate.setHours(23, 59, 59, 999);
-          break;
 
-        case 'this-week': {
-          // Monday as the first day of the week
-          startDate = new Date(now);
-          const day = startDate.getDay(); // 0 = Sunday
-          const diff = day === 0 ? -6 : 1 - day;
-          startDate.setDate(startDate.getDate() + diff);
-          startDate.setHours(0, 0, 0, 0);
-
-          endDate = new Date(now);
-          endDate.setHours(23, 59, 59, 999);
           break;
         }
 
-        case 'this-month':
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        case "this-week": {
+          startDate = new Date(now);
+
+          const day = startDate.getDay();
+          const diff = day === 0 ? -6 : 1 - day;
+
+          startDate.setDate(
+            startDate.getDate() + diff
+          );
+
           startDate.setHours(0, 0, 0, 0);
 
           endDate = new Date(now);
           endDate.setHours(23, 59, 59, 999);
-          break;
 
-        case 'this-year':
-          startDate = new Date(now.getFullYear(), 0, 1);
+          break;
+        }
+
+        case "this-month": {
+          startDate = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            1
+          );
+
           startDate.setHours(0, 0, 0, 0);
 
           endDate = new Date(now);
           endDate.setHours(23, 59, 59, 999);
+
           break;
+        }
+
+        case "this-year": {
+          startDate = new Date(
+            now.getFullYear(),
+            0,
+            1
+          );
+
+          startDate.setHours(0, 0, 0, 0);
+
+          endDate = new Date(now);
+          endDate.setHours(23, 59, 59, 999);
+
+          break;
+        }
       }
 
       if (startDate && endDate) {
@@ -182,8 +327,11 @@ export class QueryBuilder<T> {
       delete filter.dateFilter;
     }
 
+    // =====================================================
+    // FINAL FILTER
+    // =====================================================
+
     this.filterQuery = {
-      ...this.filterQuery,
       ...itemFilter,
       ...filter,
     };
@@ -191,66 +339,68 @@ export class QueryBuilder<T> {
     return this;
   }
 
-  // ---------------- SEARCH ----------------
+  // =====================================================
+  // SEARCH
+  // =====================================================
+
   search(searchableFields: string[]): this {
     const searchTerm = this.query.searchTerm?.trim();
 
-    if (!searchTerm) return this;
+    if (!searchTerm) {
+      return this;
+    }
 
-    this.filterQuery.$or = searchableFields.map((field) => ({
-      [field]: {
-        $regex: searchTerm,
-        $options: 'i',
-      },
-    }));
+    this.filterQuery.$or = searchableFields.map(
+      (field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })
+    );
 
     return this;
   }
 
-  // ---------------- SORT ----------------
-  //   sort(): this {
-  //     const sort = this.query.sort || "-createdAt";
-
-  //     this.modelQuery = this.modelQuery.sort(sort);
-
-  //     return this;
-  //   }
+  // =====================================================
+  // SORT
+  // =====================================================
 
   sort(): this {
     const sortBy = this.query.sort;
 
-    let sortField = 'createdAt';
+    let sortField = "createdAt";
     let sortOrder: 1 | -1 = -1;
 
     switch (sortBy) {
-      case 'a-z':
-        sortField = 'title';
+      case "a-z":
+        sortField = "title";
         sortOrder = 1;
         break;
 
-      case 'z-a':
-        sortField = 'title';
+      case "z-a":
+        sortField = "title";
         sortOrder = -1;
         break;
 
-      case 'priceLowToHigh':
-        sortField = 'price';
+      case "priceLowToHigh":
+        sortField = "price";
         sortOrder = 1;
         break;
 
-      case 'priceHighToLow':
-        sortField = 'price';
+      case "priceHighToLow":
+        sortField = "price";
         sortOrder = -1;
         break;
 
-      case 'dateOldToNew':
-        sortField = 'createdAt';
+      case "dateOldToNew":
+        sortField = "createdAt";
         sortOrder = 1;
         break;
 
-      case 'dateNewToOld':
+      case "dateNewToOld":
       default:
-        sortField = 'createdAt';
+        sortField = "createdAt";
         sortOrder = -1;
         break;
     }
@@ -262,55 +412,88 @@ export class QueryBuilder<T> {
     return this;
   }
 
-  // ---------------- FIELDS ----------------
+  // =====================================================
+  // FIELDS
+  // =====================================================
+
   fields(): this {
-    const fields = this.query.fields?.split(',').join(' ') || '';
+    const fields =
+      this.query.fields
+        ?.split(",")
+        .join(" ") || "";
 
     if (fields) {
-      this.modelQuery = this.modelQuery.select(fields);
+      this.modelQuery =
+        this.modelQuery.select(fields);
     }
 
     return this;
   }
 
-  // ---------------- PAGINATION ----------------
+  // =====================================================
+  // PAGINATION
+  // =====================================================
+
   paginate(): this {
-    const page = Number(this.query.page) || 1;
-    const limit = Number(this.query.limit) || 10;
+    const page =
+      Number(this.query.page) || 1;
 
-    const skip = (page - 1) * limit;
+    const limit =
+      Number(this.query.limit) || 10;
 
-    this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+    const skip =
+      (page - 1) * limit;
+
+    this.modelQuery =
+      this.modelQuery
+        .skip(skip)
+        .limit(limit);
 
     return this;
   }
 
-  // ---------------- APPLY ----------------
+  // =====================================================
+  // APPLY
+  // =====================================================
+
   apply(): this {
-    this.modelQuery = this.modelQuery.find(this.filterQuery);
+    this.modelQuery =
+      this.modelQuery.find(this.filterQuery);
 
     return this;
   }
 
-  // ---------------- BUILD ----------------
+  // =====================================================
+  // BUILD
+  // =====================================================
+
   build() {
     return this.modelQuery;
   }
 
-  // ---------------- META ----------------
-  async getMeta() {
-    const totalDocuments = await this.modelQuery.model.countDocuments(
-      this.filterQuery,
-    );
+  // =====================================================
+  // META
+  // =====================================================
 
-    const page = Number(this.query.page) || 1;
-    const limit = Number(this.query.limit) || 10;
+  async getMeta() {
+    const totalDocuments =
+      await this.modelQuery.model.countDocuments(
+        this.filterQuery
+      );
+
+    const page =
+      Number(this.query.page) || 1;
+
+    const limit =
+      Number(this.query.limit) || 10;
 
     return {
       page,
       limit,
       total: totalDocuments,
-      totalPage: Math.ceil(totalDocuments / limit),
+      totalPage: Math.ceil(
+        totalDocuments / limit
+      ),
     };
   }
 }

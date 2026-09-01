@@ -8,7 +8,7 @@ const aboutSchema = new Schema<TAbout>(
     type: {
             type: String,
             enum: Object.values(AboutType),
-            default: AboutType.Active,
+            default: AboutType.InActive,
           },
     video: { type: String },
    

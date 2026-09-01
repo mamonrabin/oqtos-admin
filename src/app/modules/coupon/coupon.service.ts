@@ -8,23 +8,13 @@ const createCoupon = async (coupon: TCoupon) => {
   return result;
 };
 const getAllCoupon = async () => {
-  const result = await couponModel
-    .find()
-    .populate('categoryID subCategoryID brandID')
-    .populate('categoryID', 'categoryName')
-    .populate('subCategoryID', 'subcategoryName')
-    .populate('brandID', 'title');
+  const result = await couponModel.find();
   return result;
 };
 
 const getAllCouponByFilter = async (query: Record<string, string>) => {
   const queryBuilder = new QueryBuilder(
-    couponModel
-      .find()
-      .populate('categoryID subCategoryID brandID')
-      .populate('categoryID', 'categoryName')
-      .populate('subCategoryID', 'subcategoryName')
-      .populate('brandID', 'title'),
+    couponModel.find(),
     query,
   );
   const couponesData = queryBuilder
@@ -64,8 +54,6 @@ const updateSingleCoupon = async (id: string, updateCoupon: TCoupon) => {
   });
   return result;
 };
-
-
 
 const deleteSingleCoupon = async (id: string) => {
   const result = await couponModel.findByIdAndDelete(id);

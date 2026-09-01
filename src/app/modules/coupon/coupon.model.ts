@@ -50,27 +50,9 @@ const couponSchema = new Schema<TCoupon>(
       required: true,
     },
 
-    couponType: {
-      type: String,
-      enum: ['brand', 'category', 'subCategory'],
-      // required: true,
-    },
-
     userInfo: {
       type: Schema.Types.ObjectId,
       ref: 'user',
-    },
-    categoryID: {
-      type: Schema.Types.ObjectId,
-      ref: 'category',
-    },
-    subCategoryID: {
-      type: Schema.Types.ObjectId,
-      ref: 'subcategory',
-    },
-    brandID: {
-      type: Schema.Types.ObjectId,
-      ref: 'brand',
     },
 
     isActive: {

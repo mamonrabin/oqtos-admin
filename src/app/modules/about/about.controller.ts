@@ -33,6 +33,18 @@ const getAllAbout = catchAsync(
     });
   },
 );
+const getAllActiveAbout = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await aboutService.getAllActiveAbout();
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: ' get all active about successfully',
+      data: result,
+    });
+  },
+);
 
 const updateSingleAbout = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -72,6 +84,7 @@ const deleteSingleAbout = catchAsync(
 export const aboutController = {
   createAbout,
   getAllAbout,
+  getAllActiveAbout,
   updateSingleAbout,
   deleteSingleAbout,
 };

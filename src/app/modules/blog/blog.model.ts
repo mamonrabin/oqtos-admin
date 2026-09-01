@@ -1,5 +1,5 @@
 import { Schema, model, type HydratedDocument } from 'mongoose';
-import type { TBlog } from './blog.interface.js';
+import { Status, type TBlog } from './blog.interface.js';
 import { generateSlug } from '../../utils/slug.js';
 
 const blogSchema = new Schema<TBlog>(
@@ -16,7 +16,7 @@ const blogSchema = new Schema<TBlog>(
       trim: true,
     },
 
-    shortDescription: {
+    cardDescription: {
       type: String,
     },
 
@@ -30,17 +30,19 @@ const blogSchema = new Schema<TBlog>(
       required: true,
     },
 
+     images: { type: [String], default: [] },
+
     tags: [
       {
         type: String,
       },
     ],
 
-    status: {
-      type: String,
-      enum: ['draft', 'published'],
-      default: 'draft',
-    },
+     status: {
+          type: String,
+          enum: Object.values(Status),
+          default: Status.draft,
+        },
   },
   {
     timestamps: true,

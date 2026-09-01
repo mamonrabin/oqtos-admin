@@ -6,10 +6,17 @@ import { userServices } from './user.service.js';
 import { sendResponse } from '../../utils/sendResponse.js';
 import AppError from '../../helpers/AppError.js';
 import type { JwtPayload } from 'jsonwebtoken';
+import { setAuthCookie } from '../../utils/setCookie.js';
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const user = await userServices.createUser(req.body);
+
+
+     setAuthCookie(res, {
+          accessToken: user.accessToken,
+        });
+
     sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
@@ -32,6 +39,22 @@ const getAllUsers = catchAsync(
       success: true,
       statusCode: httpStatus.OK,
       message: 'All Users Retrieved Successfully',
+      data: result.data,
+      meta: result.meta,
+    });
+  },
+);
+const getAllAffiliedUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const query = req.query;
+    const result = await userServices.getAllAffiliedUser(
+      query as Record<string, string>,
+    );
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'All Affilited Users Retrieved Successfully',
       data: result.data,
       meta: result.meta,
     });
@@ -135,6 +158,7 @@ const updateSingleUser = catchAsync(async (req: Request, res: Response, next: Ne
 export const userControllers = {
   createUser,
   getAllUsers,
+  getAllAffiliedUser,
   getSingleUser,
   getMe,
   deleteSingleUser,
