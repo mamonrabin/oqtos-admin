@@ -1,8 +1,8 @@
-import { model, Schema } from "mongoose"
-import type { TReview } from "./review.interface.js"
+import { model, Schema } from 'mongoose';
+import { Status, type TReview } from './review.interface.js';
 
-
-const reviewSchema = new Schema<TReview>({
+const reviewSchema = new Schema<TReview>(
+  {
     userID: {
       type: Schema.Types.ObjectId,
       ref: 'user',
@@ -20,20 +20,16 @@ const reviewSchema = new Schema<TReview>({
     comment: {
       type: String,
     },
-     type: {
+    images: { type: [String], default: [] },
+    status: {
       type: String,
-      enum: ['pending', 'approve'],
-      default:"pending"
+      enum: Object.values(Status),
+      default: Status.Pending,
     },
+  },
+  {
+    timestamps: true,
+  },
+);
 
-},
-{
-    timestamps:true
-}
-)
-
-
-
-export const reviewModel = model<TReview>('review',reviewSchema)
-
- 
+export const reviewModel = model<TReview>('review', reviewSchema);

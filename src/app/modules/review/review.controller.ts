@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import type { NextFunction, Request, Response } from 'express';
@@ -8,9 +9,17 @@ import httpStatus from 'http-status-codes';
 
 const createReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+
+
+    const files = req.files as any;
+
+  
+
     const data = req.body;
 
-    const result = await reviewService.createReview(data);
+    const images = files?.images?.map((f: any) => `/uploads/${f.filename}`) || [];
+
+    const result = await reviewService.createReview({ ...data, images });
 
     return sendResponse(res, {
       success: true,

@@ -15,4 +15,9 @@ router.patch('/:id', wishlistController.updateSingleWishlist);
 
 router.delete('/:id', wishlistController.deleteSingleWishlist);
 
+// router.delete(
+//   "/:userId/:productId",
+//   wishlistController.deleteSingleWishlist
+// );
+
 export const wishlistRoutes = router;

@@ -1,10 +1,16 @@
 import type { ObjectId } from 'mongoose';
-export type TReviewType = ' ' | 'pending' | 'approve';
+
+
+export enum Status {
+  Pending = 'Pending',
+  Approve = 'Approve',
+}
 
 export type TReview = {
   userID: ObjectId;
   productID: ObjectId;
   rating: number;
+  images?: string[];
   comment?: string;
-  type?: TReviewType;
+  status?: Status;
 };

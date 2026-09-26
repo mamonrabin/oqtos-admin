@@ -27,6 +27,7 @@ import { homeRoutes } from '../modules/home-control/home-control.route.js';
 import { blogRoutes } from '../modules/blog/blog.route.js';
 import { affiliateRoutes } from '../modules/affiliate/affiliate.route.js';
 import { customeRoutes } from '../modules/custome-design/custome-design.route.js';
+import { themeRouter } from '../modules/theme/theme.route.js';
 
 export const router = Router();
 
@@ -142,6 +143,10 @@ const moduleRoutes = [
   {
     path: '/custome',
     route: customeRoutes,
+  },
+  {
+    path: '/theme',
+    route: themeRouter,
   },
 ];
 

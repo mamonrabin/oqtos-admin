@@ -21,6 +21,20 @@ export enum TCardType {
   SecondCard = 'SecondCard',
   ThirdCard = 'ThirdCard',
 }
+export enum TCardCount {
+  Default = '4cards',
+  threecards = '3cards',
+  fivecards = '5cards',
+  sixcards = '6cards',
+}
+
+export enum TShopCardCount {
+  Default = '4cards',
+  threecards = '3cards',
+  fivecards = '5cards',
+  sixcards = '6cards',
+}
+
 export enum TFlashBanner {
   Default = 'Default',
   SecondBanner = 'SecondBanner',
@@ -75,6 +89,8 @@ export type TCustom = {
   shop?: {
     shopPage?: TShopPage;
     cardType?: TCardType;
+    cardCount?: TCardCount;
+    shopCardCount?: TShopCardCount;
   };
 
   search?: {

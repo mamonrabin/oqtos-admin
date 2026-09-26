@@ -13,6 +13,8 @@ import {
   TSearchSection,
   TLoginSection,
   type TCustom,
+  TCardCount,
+  TShopCardCount,
 } from "./custome-design.interface.js";
 
 const customeSchema = new Schema<TCustom>(
@@ -71,6 +73,16 @@ const customeSchema = new Schema<TCustom>(
         type: String,
         enum: Object.values(TCardType),
         default: TCardType.Default,
+      },
+      cardCount: {
+        type: String,
+        enum: Object.values(TCardCount),
+        default: TCardCount.Default,
+      },
+      shopCardCount: {
+        type: String,
+        enum: Object.values(TShopCardCount),
+        default: TShopCardCount.Default,
       },
     },
 

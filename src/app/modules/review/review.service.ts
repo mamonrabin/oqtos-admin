@@ -1,3 +1,4 @@
+
 import { QueryBuilder } from "../../utils/QueryBuilder.js";
 import type { TReview } from "./review.interface.js";
 import { reviewModel } from "./review.model.js";
@@ -14,6 +15,8 @@ const getReview = async () => {
   const result = await reviewModel.find().populate("userID","name email").populate("productID","title");
   return result;
 };
+
+
 
 
 const getAllReview = async (query: Record<string, string>) => {
@@ -62,6 +65,7 @@ const updateSingleReview = async (
 export const reviewService = {
   createReview,
   getReview,
+
   getSingleReview,
   deleteSingleReview,
   getAllReview,

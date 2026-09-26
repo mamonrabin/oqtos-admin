@@ -6,16 +6,36 @@ import { sendResponse } from '../../utils/sendResponse.js';
 import httpStatus from 'http-status-codes';
 import { wishlistService } from './wishlist.service.js';
 
-const createWishlist = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const wishlist = req.body;
+// const createWishlist = catchAsync(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const wishlist = req.body;
 
-    const result = await wishlistService.createWishlist(wishlist);
+//  const { userId } = req.params;
+//     const result = await wishlistService.createWishlist(userId as string, wishlist);
+
+//     return sendResponse(res, {
+//       success: true,
+//       statusCode: httpStatus.CREATED,
+//       message: 'wishlist Created Successfully',
+//       data: result,
+//     });
+//   },
+// );
+
+
+const createWishlist = catchAsync(
+  async (req: Request, res: Response) => {
+    const { userRef, productRef } = req.body;
+
+    const result = await wishlistService.createWishlist(
+      userRef,
+      productRef,
+    );
 
     return sendResponse(res, {
       success: true,
       statusCode: httpStatus.CREATED,
-      message: 'wishlist Created Successfully',
+      message: "Wishlist created successfully",
       data: result,
     });
   },
