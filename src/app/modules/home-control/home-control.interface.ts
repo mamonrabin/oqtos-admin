@@ -4,6 +4,8 @@ export type TLandingpage =
   | 'Flash Sale'
   | 'Featured Products'
   | 'New Arrivals'
+  | 'Top Rated'
+  | 'Trending'
   | 'About'
   | 'Brands'
   | 'Testimonials'
@@ -20,7 +22,9 @@ export type TOrder =
   | 'seventh'
   | 'eighth'
   | 'ninth'
-  | 'tenth';
+  | 'tenth'
+  | 'eleventh'
+  | 'twelfth';
 
 export enum Status {
   Active = 'Active',

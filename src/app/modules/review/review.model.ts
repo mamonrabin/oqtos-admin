@@ -24,7 +24,7 @@ const reviewSchema = new Schema<TReview>(
     status: {
       type: String,
       enum: Object.values(Status),
-      default: Status.Pending,
+      default: Status.pending,
     },
   },
   {

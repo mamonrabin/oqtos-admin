@@ -2,8 +2,8 @@ import type { ObjectId } from 'mongoose';
 
 
 export enum Status {
-  Pending = 'Pending',
-  Approve = 'Approve',
+  pending = 'pending',
+  approve = 'approve',
 }
 
 export type TReview = {

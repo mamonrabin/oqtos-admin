@@ -17,6 +17,8 @@ const homeSchema = new Schema<THome>(
         'Flash Sale',
         'Featured Products',
         'New Arrivals',
+        'Top Rated',
+        'Trending',
         'About',
         'Brands',
         'Testimonials',
@@ -38,6 +40,8 @@ const homeSchema = new Schema<THome>(
         'eighth',
         'ninth',
         'tenth',
+        'eleventh',
+        'twelfth'
       ],
       required: true,
     },

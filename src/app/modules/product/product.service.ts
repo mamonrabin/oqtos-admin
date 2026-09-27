@@ -10,6 +10,7 @@ import mongoose from 'mongoose';
 import { categoryModel } from '../category/category.model.js';
 import { subcategoryModel } from '../sub-category/sub-category.model.js';
 import { brandModel } from '../brand/brand.model.js';
+import { addReviewStats } from './product.utils.js';
 
 const createProduct = async (payload: TProduct) => {
   const result = await productModel.create(payload);
@@ -23,7 +24,8 @@ const getAllProductWithoutBuilder = async () => {
     .populate('category', 'categoryName')
     .populate('subCategory', 'subcategoryName')
     .populate('brand', 'title');
-  return result;
+  // return result;
+  return addReviewStats(result);
 };
 
 // const getAllProduct = async (query: Record<string, string>) => {
@@ -55,10 +57,7 @@ const getAllProductWithoutBuilder = async () => {
 //   };
 // };
 
-
-const getAllProduct = async (
-  query: Record<string, string>
-) => {
+const getAllProduct = async (query: Record<string, string>) => {
   const queryObj = { ...query };
 
   // ==========================================
@@ -71,7 +70,7 @@ const getAllProduct = async (
         .findOne({
           slug: queryObj.category,
         })
-        .select("_id");
+        .select('_id');
 
       if (category) {
         queryObj.category = category._id.toString();
@@ -89,11 +88,10 @@ const getAllProduct = async (
         .findOne({
           slug: queryObj.subCategory,
         })
-        .select("_id");
+        .select('_id');
 
       if (subCategory) {
-        queryObj.subCategory =
-          subCategory._id.toString();
+        queryObj.subCategory = subCategory._id.toString();
       }
     }
   }
@@ -108,7 +106,7 @@ const getAllProduct = async (
         .findOne({
           slug: queryObj.brand,
         })
-        .select("_id");
+        .select('_id');
 
       if (brand) {
         queryObj.brand = brand._id.toString();
@@ -123,10 +121,10 @@ const getAllProduct = async (
   const queryBuilder = new QueryBuilder(
     productModel
       .find()
-      .populate("category", "categoryName")
-      .populate("subCategory", "subcategoryName")
-      .populate("brand", "title"),
-    queryObj
+      .populate('category', 'categoryName')
+      .populate('subCategory', 'subcategoryName')
+      .populate('brand', 'title'),
+    queryObj,
   );
 
   const productData = queryBuilder
@@ -143,11 +141,11 @@ const getAllProduct = async (
   ]);
 
   return {
-    data,
+    data: await addReviewStats(data),
+    // data
     meta,
   };
 };
-
 
 const getRelatedProducts = async (productId: string, limit = 8) => {
   const product = await productModel.findById(productId);
@@ -174,7 +172,8 @@ const getRelatedProducts = async (productId: string, limit = 8) => {
     .limit(limit)
     .sort({ createdAt: -1 });
 
-  return relatedProducts;
+  // return relatedProducts;
+  return addReviewStats(relatedProducts);
 };
 
 const getDiscountProducts = async (limit = 8) => {
@@ -189,7 +188,8 @@ const getDiscountProducts = async (limit = 8) => {
     .sort({ discount: -1, createdAt: -1 })
     .limit(limit);
 
-  return discountProducts;
+  // return discountProducts;
+  return addReviewStats(discountProducts);
 };
 
 const getProductsByCategory = async (categoryId: string) => {
@@ -200,7 +200,8 @@ const getProductsByCategory = async (categoryId: string) => {
     .populate('brand', 'title')
     .sort({ createdAt: -1 });
 
-  return result;
+  // return result;
+  return addReviewStats(result);
 };
 
 const getProductsBySubCategory = async (subCategoryId: string) => {
@@ -211,7 +212,7 @@ const getProductsBySubCategory = async (subCategoryId: string) => {
     .populate('brand', 'title')
     .sort({ createdAt: -1 });
 
-  return result;
+  return addReviewStats(result);
 };
 
 const getProductsByBrand = async (brandId: string) => {
@@ -223,7 +224,7 @@ const getProductsByBrand = async (brandId: string) => {
 
     .sort({ createdAt: -1 });
 
-  return result;
+  return addReviewStats(result);
 };
 
 const getProductsByLabels = async (label: ProductLabel, limit = 8) => {
@@ -235,7 +236,7 @@ const getProductsByLabels = async (label: ProductLabel, limit = 8) => {
     .sort({ createdAt: -1 })
     .limit(limit);
 
-  return result;
+  return addReviewStats(result);
 };
 
 const getBestSellingProducts = async (limit = 8) => {
@@ -249,7 +250,7 @@ const getBestSellingProducts = async (limit = 8) => {
     .sort({ soldQuantity: -1, createdAt: -1 })
     .limit(limit);
 
-  return result;
+  return addReviewStats(result);
 };
 
 const getNewArrivalProducts = async (limit = 8) => {
@@ -265,7 +266,7 @@ const getNewArrivalProducts = async (limit = 8) => {
     .sort({ createdAt: -1 })
     .limit(limit);
 
-  return result;
+  return addReviewStats(result);
 };
 
 const getSingleProduct = async (id: string) => {
