@@ -7,12 +7,7 @@ const router = express.Router();
 router.post('/create-custome', customeController.createCustome);
 
 router.get('/', customeController.getAllCustome);
-router.get('/test', (_req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Custom design route is working on Vercel',
-  });
-});
+
 
 
 

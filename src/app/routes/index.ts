@@ -149,14 +149,6 @@ const moduleRoutes = [
     route: themeRouter,
   },
 ];
-
-router.get('/custome/test-central', (_req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Central router is working',
-  });
-});
-
 moduleRoutes.forEach((route) => {
   router.use(route.path, route.route);
 });
