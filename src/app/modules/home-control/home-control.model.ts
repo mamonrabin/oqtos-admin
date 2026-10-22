@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import { Status, type THome } from './home-control.interface.js';
+import { SliderStatus, Status, type THome } from './home-control.interface.js';
 
 const homeSchema = new Schema<THome>(
   {
@@ -50,6 +50,11 @@ const homeSchema = new Schema<THome>(
       type: String,
       enum: Object.values(Status),
       default: Status.Active,
+    },
+   sliderStatus: {
+      type: String,
+      enum: Object.values(SliderStatus),
+      default: SliderStatus.withslider,
     },
   },
   {

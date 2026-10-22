@@ -24,6 +24,7 @@ router.get('/sub-category/:id', productController.getProductsBySubCategory);
 router.get('/brand/:id', productController.getProductsByBrand);
 router.get('/labels/:label', productController.getProductsByLabels);
 router.get('/best-selling', productController.getBestSellingProducts);
+router.get('/top-rated', productController.getTopProducts);
 router.get('/:id', productController.getSingleProduct);
 router.get('/productSlug/:slug', productController.getSingleProductBySlug);
 router.put(

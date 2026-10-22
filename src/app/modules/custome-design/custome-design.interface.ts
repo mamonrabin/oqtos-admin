@@ -2,6 +2,7 @@ export enum TBannerType {
   Default = 'Default',
   SecondBanner = 'SecondBanner',
   ThirdBanner = 'ThirdBanner',
+  FourthBanner = 'FourthBanner',
 }
 
 export enum TCategorySection {

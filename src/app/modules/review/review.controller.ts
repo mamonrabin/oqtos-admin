@@ -42,6 +42,18 @@ const getReview = catchAsync(
     });
   },
 );
+const getReviewbyStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await reviewService.getReviewbyStatus();
+
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'Get Reviews Successfully',
+      data: result,
+    });
+  },
+);
 
 const getAllReview = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -107,6 +119,7 @@ const updateSingleReview = catchAsync(async (req: Request, res: Response, next: 
 export const reviewController = {
   createReview,
   getReview,
+  getReviewbyStatus,
   getAllReview,
   getSingleReview,
   deleteSingleReview,

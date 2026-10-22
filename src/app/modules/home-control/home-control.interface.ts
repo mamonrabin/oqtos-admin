@@ -30,11 +30,16 @@ export enum Status {
   Active = 'Active',
   InActive = 'InActive',
 }
+export enum SliderStatus {
+  withslider = 'withslider',
+  withoutslider = 'withoutslider',
+}
 
 export type THome = {
   title?: string;
   subTitle?: string;
   status: Status;
+  sliderStatus: SliderStatus;
   order: TOrder;
   landing: TLandingpage;
 };

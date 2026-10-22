@@ -193,6 +193,18 @@ const getBestSellingProducts = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getTopProducts = catchAsync(async (req, res) => {
+  const limit = Number(req.query.limit) || 8;
+
+  const result = await productService.getTopProducts(limit);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Top products retrieved successfully',
+    data: result,
+  });
+});
 
 const getSingleProduct = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -293,6 +305,7 @@ export const productController = {
   getProductsByBrand,
   getProductsByLabels,
   getBestSellingProducts,
+  getTopProducts,
   getSingleProduct,
   getSingleProductBySlug,
   updateSingleProduct,

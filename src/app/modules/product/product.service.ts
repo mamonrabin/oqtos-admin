@@ -157,6 +157,7 @@ const getRelatedProducts = async (productId: string, limit = 8) => {
   // Build filter for related products
   const filters: Record<string, unknown> = {
     _id: { $ne: product._id },
+    status: Status.Active,
     $or: [
       { subCategory: product.subCategory },
       { category: product.category },
@@ -181,6 +182,7 @@ const getDiscountProducts = async (limit = 8) => {
     .find({
       discount: { $gt: 0 },
       stock_status: 'in_stock',
+      status: Status.Active,
     })
     .populate('category', 'categoryName')
     .populate('subCategory', 'subCategoryName')
@@ -194,7 +196,7 @@ const getDiscountProducts = async (limit = 8) => {
 
 const getProductsByCategory = async (categoryId: string) => {
   const result = await productModel
-    .find({ category: categoryId })
+    .find({ category: categoryId, status: Status.Active })
     .populate('category', 'categoryName')
     .populate('subCategory', 'subCategoryName')
     .populate('brand', 'title')
@@ -206,7 +208,7 @@ const getProductsByCategory = async (categoryId: string) => {
 
 const getProductsBySubCategory = async (subCategoryId: string) => {
   const result = await productModel
-    .find({ subCategory: subCategoryId })
+    .find({ subCategory: subCategoryId, status: Status.Active })
     .populate('category', 'categoryName')
     .populate('subCategory', 'subCategoryName')
     .populate('brand', 'title')
@@ -217,7 +219,7 @@ const getProductsBySubCategory = async (subCategoryId: string) => {
 
 const getProductsByBrand = async (brandId: string) => {
   const result = await productModel
-    .find({ brand: brandId })
+    .find({ brand: brandId, status: Status.Active })
     .populate('category', 'categoryName')
     .populate('subCategory', 'subCategoryName')
     .populate('brand', 'title')
@@ -229,7 +231,7 @@ const getProductsByBrand = async (brandId: string) => {
 
 const getProductsByLabels = async (label: ProductLabel, limit = 8) => {
   const result = await productModel
-    .find({ label })
+    .find({ label, status: Status.Active })
     .populate('category', 'categoryName')
     .populate('subCategory', 'subCategoryName')
     .populate('brand', 'title')
@@ -243,6 +245,7 @@ const getBestSellingProducts = async (limit = 8) => {
   const result = await productModel
     .find({
       soldQuantity: { $gt: 0 },
+      status: Status.Active,
     })
     .populate('category', 'categoryName')
     .populate('subCategory', 'subCategoryName')
@@ -264,6 +267,24 @@ const getNewArrivalProducts = async (limit = 8) => {
     .populate('subCategory', 'subcategoryName')
     .populate('brand', 'title')
     .sort({ createdAt: -1 })
+    .limit(limit);
+
+  return addReviewStats(result);
+};
+
+const getTopProducts = async (limit = 8) => {
+  const result = await productModel
+    .find({
+      status: Status.Active,
+    })
+    .populate('category', 'categoryName')
+    .populate('subCategory', 'subCategoryName')
+    .populate('brand', 'title')
+    .sort({
+      averageRating: -1,
+      totalReviews: -1,
+      createdAt: -1,
+    })
     .limit(limit);
 
   return addReviewStats(result);
@@ -311,6 +332,7 @@ export const productService = {
   getProductsByBrand,
   getProductsByLabels,
   getBestSellingProducts,
+  getTopProducts,
   getSingleProduct,
   getSingleProductBySlug,
   updateSingleProduct,

@@ -10,7 +10,8 @@ router.post(
   reviewController.createReview,
 );
 router.get('/', reviewController.getReview);
-router.get('/', reviewController.getAllReview);
+router.get('/all', reviewController.getAllReview);
+router.get('/status', reviewController.getReviewbyStatus);
 router.get('/:id', reviewController.getSingleReview);
 router.patch('/:id', reviewController.updateSingleReview);
 
