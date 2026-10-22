@@ -14,6 +14,8 @@ router.get('/test', (_req, res) => {
   });
 });
 
+
+
 router.get('/', customeController.getAllCustome);
 
 router.get('/:id', customeController.getSingleCustome);
