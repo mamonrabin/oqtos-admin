@@ -15,7 +15,9 @@ const createHome = async (homes: THome) => {
 const getAllHome = async () => {
   const result = await homeModel.find();
   result.sort(
-  (a, b) => orders.indexOf(a.order) - orders.indexOf(b.order)
+  (a, b) =>
+    orders.indexOf(a.order as (typeof orders)[number]) -
+    orders.indexOf(b.order as (typeof orders)[number])
 );
   return result;
 };

@@ -2,7 +2,7 @@
 import bcryptjs from "bcryptjs";
 import { userModel } from "../modules/user/user.model.js";
 import config from "../config/index.js";
-import { Role, type IAuthProvider, type IUser } from "../modules/user/user.interface.js";
+import { AffiliateStatus, Role, type IAuthProvider, type IUser } from "../modules/user/user.interface.js";
 
 
 export const seedSuperAdmin = async () => {
@@ -34,8 +34,8 @@ export const seedSuperAdmin = async () => {
             email: superAdminEmail,
             password: hashedPassword,
             isVerified: true,
-            auths: [authProvider]
-
+            auths: [authProvider],
+            affiliateStatus: AffiliateStatus.Request
         }
 
         const superadmin = await userModel.create(payload)

@@ -111,6 +111,7 @@ export type TOrderProduct = {
 };
 
 export type TShippingAddress = {
+  thana: string;
   name: string;
   phone: string;
   altPhone?: string;
