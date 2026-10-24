@@ -9,7 +9,7 @@ import passport from 'passport';
 import expressSession from 'express-session';
 import { globalErrorHandler } from './app/middlewares/globalErrorHandler.js';
 import notFound from './app/middlewares/notFound.js';
-import config from './app/config/index.js';
+// import config from './app/config/index.js';
 import { router } from './app/routes/index.js';
 import './app/config/passport.js';
 import path from 'path';
@@ -30,9 +30,19 @@ app.use(express.json());
 app.set('trust proxy', 1);
 app.use(express.urlencoded({ extended: true }));
 // after live link end
+// app.use(
+//   cors({
+//     origin: config.frontend_url,
+//     credentials: true,
+//   }),
+// );
+
 app.use(
   cors({
-    origin: config.frontend_url,
+    origin: [
+      "http://localhost:3000",
+      "https://your-frontend.vercel.app",
+    ],
     credentials: true,
   }),
 );
