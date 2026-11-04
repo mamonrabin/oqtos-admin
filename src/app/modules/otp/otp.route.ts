@@ -1,9 +1,9 @@
-// src/modules/otp/otp.routes.ts
-import express from "express";
+
+import { Router } from "express";
+
 import { OTPController } from "./otp.controller.js";
 
-
-const router = express.Router();
+const router = Router();
 
 router.post("/send", OTPController.sendOTP);
 router.post("/verify", OTPController.verifyOTP);

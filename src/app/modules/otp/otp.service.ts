@@ -2,8 +2,8 @@
 import crypto from "crypto";
 import { userModel } from "../user/user.model.js";
 import AppError from "../../helpers/AppError.js";
-import { redisClient } from "../../config/redis.config.js";
 import { sendEmail } from "../../utils/sendEmail.js";
+import { OTPModel } from "./otp.model.js";
 
 const OTP_EXPIRATION = 120; // 2 minutes
 
@@ -14,7 +14,11 @@ const generateOtp = (length = 6): string => {
 };
 
 const sendOTP = async (email: string, name: string) => {
-  const user = await userModel.findOne({ email });
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const user = await userModel.findOne({
+    email: normalizedEmail,
+  });
 
   if (!user) {
     throw new AppError(404, "User not found");
@@ -25,27 +29,50 @@ const sendOTP = async (email: string, name: string) => {
   }
 
   const otp = generateOtp();
-  const redisKey = `otp:${email}`;
 
-  await redisClient.set(redisKey, otp, {
-    EX: OTP_EXPIRATION,
-  });
+  const expiresAt = new Date(
+    Date.now() + OTP_EXPIRATION * 1000,
+  );
+
+  await OTPModel.findOneAndUpdate(
+    { email: normalizedEmail },
+    {
+      $set: {
+        otp,
+        expiresAt,
+      },
+    },
+    {
+      upsert: true,
+      new: true,
+      runValidators: true,
+      setDefaultsOnInsert: true,
+    },
+  );
 
   try {
     await sendEmail({
-      to: email,
+      to: normalizedEmail,
       subject: "Your OTP Code",
       templateName: "otp",
       templateData: { name, otp },
     });
   } catch (error) {
-    await redisClient.del(redisKey);
+    await OTPModel.deleteOne({
+      email: normalizedEmail,
+      otp,
+    });
+
     throw error;
   }
 };
 
 const verifyOTP = async (email: string, otp: string) => {
-  const user = await userModel.findOne({ email });
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const user = await userModel.findOne({
+    email: normalizedEmail,
+  });
 
   if (!user) {
     throw new AppError(404, "User not found");
@@ -55,21 +82,34 @@ const verifyOTP = async (email: string, otp: string) => {
     throw new AppError(401, "You are already verified");
   }
 
-  const redisKey = `otp:${email}`;
-  const savedOtp = await redisClient.get(redisKey);
+  const otpRecord = await OTPModel.findOne({
+    email: normalizedEmail,
+    otp,
+    expiresAt: { $gt: new Date() },
+  });
 
-  if (!savedOtp || savedOtp !== otp) {
+  if (!otpRecord) {
     throw new AppError(401, "Invalid or expired OTP");
   }
 
-  // Delete the OTP only after successful verification.
-  await userModel.updateOne(
-    { _id: user._id, isVerified: false },
-    { $set: { isVerified: true } },
-    { runValidators: true },
+  const result = await userModel.updateOne(
+    {
+      _id: user._id,
+      isVerified: false,
+    },
+    {
+      $set: { isVerified: true },
+    },
+    {
+      runValidators: true,
+    },
   );
 
-  await redisClient.del(redisKey);
+  if (result.modifiedCount === 0) {
+    throw new AppError(401, "User verification failed");
+  }
+
+  await OTPModel.deleteOne({ _id: otpRecord._id });
 };
 
 export const OTPService = {
