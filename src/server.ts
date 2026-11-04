@@ -1,13 +1,15 @@
 
-import mongoose from "mongoose";
 import type { Server } from "node:http";
+import mongoose from "mongoose";
 
 import config from "./app/config/index.js";
 import app from "./app.js";
+
 import {
-  connectRedis,
   redisClient,
 } from "./app/config/redis.config.js";
+
+import { ensureServicesConnected } from "./app/bootstrap.js";
 import { seedSuperAdmin } from "./app/utils/seedSuperAdmin.js";
 
 let server: Server | undefined;
@@ -15,29 +17,27 @@ let isShuttingDown = false;
 
 async function main(): Promise<void> {
   try {
+    // Validate configuration
     if (!config.database_url) {
       throw new Error("DATABASE_URL is missing");
     }
 
-    // 1. Connect MongoDB
-    await mongoose.connect(config.database_url);
-    console.log("MongoDB connected");
+    // Connect MongoDB and Redis
+    await ensureServicesConnected();
 
-    // 2. Connect Redis before Express handles requests
-    await connectRedis();
-    console.log("Redis connected");
-
-    // 3. Seed Super Admin
+    // Seed Super Admin only during local server startup.
     await seedSuperAdmin();
 
-    // 4. Start Express server
+    // Start local Express server
     server = app.listen(config.port, () => {
-      console.log(`Oqtos API running on port ${config.port}`);
+      console.log(
+        `Oqtos API running at http://localhost:${config.port}`,
+      );
     });
 
     server.on("error", (error) => {
       console.error("HTTP Server Error:", error);
-      void shutdown("server error");
+      void shutdown("Server error");
     });
   } catch (error) {
     console.error("Server startup failed:", error);
@@ -48,7 +48,7 @@ async function main(): Promise<void> {
   }
 }
 
-// Close database connections during local shutdown only.
+// Cleanup connections
 async function cleanup(): Promise<void> {
   const tasks: Promise<unknown>[] = [];
 
@@ -75,26 +75,21 @@ async function shutdown(signal: string): Promise<void> {
 
   isShuttingDown = true;
 
-  console.log(`${signal} received. Shutting down gracefully...`);
+  console.log(`${signal} received. Shutting down...`);
 
   try {
-    // Stop accepting new HTTP requests.
     if (server) {
       await new Promise<void>((resolve, reject) => {
         server!.close((error) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve();
-          }
+          if (error) reject(error);
+          else resolve();
         });
       });
     }
 
-    // Close Redis and MongoDB after HTTP server closes.
     await cleanup();
 
-    console.log("Server shut down successfully");
+    console.log("Oqtos server shut down successfully");
 
     process.exitCode = 0;
   } catch (error) {
@@ -103,7 +98,7 @@ async function shutdown(signal: string): Promise<void> {
   }
 }
 
-// Handle termination signals.
+// Handle termination signals locally
 process.on("SIGTERM", () => {
   void shutdown("SIGTERM");
 });
@@ -112,16 +107,5 @@ process.on("SIGINT", () => {
   void shutdown("SIGINT");
 });
 
-// Handle unexpected errors.
-process.on("unhandledRejection", (error) => {
-  console.error("Unhandled promise rejection:", error);
-  void shutdown("Unhandled rejection");
-});
-
-process.on("uncaughtException", (error) => {
-  console.error("Uncaught exception:", error);
-  void shutdown("Uncaught exception");
-});
-
-// Start application.
+// Start server
 void main();
