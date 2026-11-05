@@ -24,9 +24,30 @@ const isProduction = process.env.NODE_ENV === "production";
 app.set("trust proxy", 1);
 
 // CORS
+// const allowedOrigins = [
+//   "http://localhost:3000",
+//   "https://demosite-flame-eta.vercel.app",
+//    "https://oqtosadmin.vercel.app",
+// ];
+
+// app.use(
+//   cors({
+//     origin(origin, callback) {
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   }),
+// );
+
+
 const allowedOrigins = [
   "http://localhost:3000",
   "https://demosite-flame-eta.vercel.app",
+  "https://oqtosadmin.vercel.app",
 ];
 
 app.use(
